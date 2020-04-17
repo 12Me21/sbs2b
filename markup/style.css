@@ -1,0 +1,155 @@
+/*stolen from github*/
+body {
+	/* color: #24292e; */
+	font-family: -apple-system,BlinkMacSystemFont,Segoe UI,Helvetica,Arial,sans-serif,Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol;
+	word-wrap: break-word;
+	font-size: 16px;
+	line-height: 1.5;
+	padding: 45px;
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	margin-left: 10em;
+	margin-right: 10em;
+	margin-bottom: 100vh;
+} 
+
+h1, h2, h3 {
+	font-weight: 600;
+	line-height: 1.25;
+	margin: 0;
+}
+
+img {
+	max-height: 10vh;
+	vertical-align: top;
+}
+
+h1 {
+	border-bottom: 1px solid #eaecef;
+	/* padding-bottom: .3em; */
+	font-size: 2em;
+}
+
+h2 {
+	font-size: 1.5em;
+	border-bottom: 1px solid #eaecef;
+}
+
+h3 {
+	font-size: 1.25em;
+}
+
+a {
+	color: #0366d6;
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
+pre {
+	background-color: #f6f8fa;
+	border-radius: 3px;
+	border: 1px solid #444;
+	font-size: 85%;
+	line-height: 1.45;
+	overflow: auto;
+	padding: 16px;
+	word-break: normal;
+	word-wrap: normal;
+	margin-top: 8px;
+	font-family: SFMono-Regular,Consolas,Liberation Mono,Menlo,Courier,monospace;
+	margin-bottom: 8px;
+	box-shadow: 5px 10px 8px #888888;
+}
+
+code {
+	background-color: rgba(27,31,35,.05);
+	border-radius: 3px;
+	font-size: 85%;
+	margin: 0;
+	padding: .1em .2em;
+	font-family: SFMono-Regular,Consolas,Liberation Mono,Menlo,Courier,monospace;
+	white-space: nowrap;
+}
+
+table {
+	overflow: auto;
+	margin-bottom: 0.5em;
+	margin-top: 0em;
+	border-collapse: collapse;
+	border-spacing: 0;
+	word-wrap: break-word;
+	box-shadow: 5px 10px 8px #888888;
+}
+
+tr {
+	background-color: #fff;
+	border-top: 1px solid #c6cbd1;
+}
+
+tr:nth-child(2n) {
+	background-color: #f6f8fa;
+}
+
+th/*, tr:nth-child(1)*/ { 
+	font-weight: 600;
+}
+
+td, th {
+	border: 1px solid #666;
+	padding: 6px 13px;
+	/*vertical-align: top;*/
+}
+
+th {
+	border-top: 2px solid #444;
+}
+
+hr {
+	background-color: #e1e4e8;
+	border: 0;
+	height: .25em;
+	margin: 24px 0;
+	padding: 0;
+}
+
+sup {
+	top: -.5em;
+	font-size: 75%;
+	line-height: 0;
+	position: relative;
+	vertical-align: initial;
+}
+
+ul {
+	margin-bottom: 0;
+	padding-left: 1em;
+}
+
+blockquote[cite]::before {
+    content: attr(cite) ":\A";
+    white-space: pre;
+    font-style: italic;
+    margin-left: -0.1rem;
+    display: block;
+    margin-bottom: 0.2em;
+	margin-left: -1.0rem;
+}
+
+blockquote {
+	padding: 0.5em;
+	padding-bottom: 0.6rem;
+	padding-left: 1.5rem;
+	margin: 0;
+	display: block;
+	font-style: normal;
+	line-height: initial;
+	width: -webkit-calc(100% - 2px);
+	width: calc(100% - 2px);
+	box-sizing: border-box;
+	overflow-y: hidden;
+	
+	border: 1px solid rgba(24,24,24,.25);
+	background-color: rgba(235,235,235,0.80);
+}

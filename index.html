@@ -1,3 +1,23 @@
 <meta charset="utf-8">
+<link rel="stylesheet" href="markup/style.css">
 <script src="req.js"></script>
 <script defer src="onload.js"></script>
+<script src="markup/parse2.js"></script>
+
+<div id="$login">
+	<form>
+		<input name="username" type="text" id="$username" placeholder="Username">
+		<input name="password" id="$password" type="password" placeholder="Password"><br>
+		<button type="button" onclick="login();">Log In</button><br>
+		<input id="$email" type="email" placeholder="Email"><br>
+		<button type="button" onclick="register();">Register</button><br>
+	</form>
+	<input id="$key" type="key" placeholder="Email confirmation key"><br>
+	<button type="heck" onclick="emailConfirm()">Confirm</button><br>
+</div>
+
+<input id="$id" type="number">
+<button onclick="showPost()">get content</button>
+<hr>
+
+<div id="$post"></div>

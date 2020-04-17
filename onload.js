@@ -1,11 +1,14 @@
 window.myself = new Myself();
-myself.register("12​","sand1234","12Me21.mc@gmail.com");
-/*myself.logIn("ralsei", "cock1234", function(error) {
-	if (error)
-		alert("error:"+error);
-	else
-		alert(this.auth);
-});*/
+myself.on('auth',function(){
+	$login.style.display = "none";
+});
+myself.on('logOut', function(){
+	$login.style.display = "unset";
+});
+if (window.localStorage.auth) {
+	myself.setAuth(window.localStorage.auth);
+}
+myself.testAuth();
 
 function register() {
 	myself.register($username.value, $password.value, $email.value, function(e) {
@@ -23,7 +26,27 @@ function emailConfirm() {
 			alert("failed: "+e);
 		}else{
 			alert("OK!");
-			myself.logIn();
+		}
+	});
+}
+
+function login() {
+	myself.logIn($username.value, $password.value, function(e) {
+		if (e) {
+			alert("log in failed!" +e);
+		} else {
+	//		alert("log in ok!");
+		}
+	})
+}
+
+function showPost() {
+	myself.request("Content?ids="+$id.value,"GET",function(resp, code){
+		if (code!=200) {
+			alert("error:"+e);
+		} else {
+			console.log(resp);
+			$post.innerHTML = parse(resp[0].content, options);
 		}
 	});
 }
