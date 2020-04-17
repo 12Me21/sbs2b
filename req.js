@@ -1,4 +1,4 @@
-var SERVER = "http://new.smilebasicsource.com/api/";
+var SERVER = "https://cors-anywhere.herokuapp.com/http://new.smilebasicsource.com/api/";
 
 function request(endpoint, method, callback, data, auth) {
 	var x = new XMLHttpRequest();
