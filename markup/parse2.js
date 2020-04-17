@@ -36,7 +36,8 @@ function tags(name) {
 }
 
 //this contains all the html + html generation functions that the parser uses.
-options = {
+function makeOptions(audio){
+	return {
 	escape_text: escape_html,
 	
 	heading: {
@@ -107,11 +108,11 @@ options = {
 		},
 		// generate a simple link, for [[url]]
 		simple: function(url, type){
-			if (type == "image")
+			if (type == "image" && audio)
 				return '<img tabindex="-1" src="'+escape_html_attribute(url)+'">';
-			else if (type == "audio")
+			else if (type == "audio" && audio)
 				return '<audio controls src="'+escape_html_attribute(url)+'"></audio>';
-			else if (type == "video")
+			else if (type == "video" && audio)
 				return '<video controls tabindex="-1" src="'+escape_html_attribute(url)+'"></video>';
 			else
 				return '<a href="'+escape_html_href(url)+'">' + escape_html(url) + "</a>";
@@ -145,7 +146,11 @@ options = {
 		},
 		end: "</blockquote>",
 	},
+	}
 };
+
+var options = makeOptions(true);
+var options2 = makeOptions(false);
 
 //this will insert extra linebreaks at the end of most blocks.
 //it's not really easy to fix this but basically like

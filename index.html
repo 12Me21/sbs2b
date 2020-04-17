@@ -14,10 +14,14 @@
 	</form>
 	<input id="$key" type="key" placeholder="Email confirmation key"><br>
 	<button type="heck" onclick="emailConfirm()">Confirm</button><br>
+	
 </div>
 
-<input id="$id" type="number">
-<button onclick="showPost()">get content</button>
+<input id="$id" type="number" placeholder="id"><br>
+<input id="$title" placeholder="title"><br>
+<textarea id="$textarea" oninput="window.setTimeout(onUpdate,10)"></textarea><br>
+<button onclick="makePost()">Post</button>
+<button onclick="showPost()">Get post</button>
 <hr>
-
 <div id="$post"></div>
+

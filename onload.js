@@ -43,10 +43,36 @@ function login() {
 function showPost() {
 	myself.request("Content?ids="+$id.value,"GET",function(resp, code){
 		if (code!=200) {
-			alert("error:"+e);
+			alert("error:"+resp);
 		} else {
 			console.log(resp);
 			$post.innerHTML = parse(resp[0].content, options);
+			$textarea.value = resp[0].content;
+			$title.value = resp[0].title;
 		}
 	});
+}
+
+var RANDOMS_MAGIC_PARENT_ID = 5;
+
+function makePost() {
+	var method = "POST";
+	var url = "Content";
+	if ($id.value) {
+		url += "/"+$id.value;
+		method = "PUT";
+	}
+	myself.request(url, method, function(resp, code) {
+		if (code !=200) {
+			alert("Error: "+resp);
+		}
+	}, {
+		title: $title.value,
+		content: $textarea.value,
+		parentId: RANDOMS_MAGIC_PARENT_ID,
+	});
+}
+
+function onUpdate() {
+	$post.innerHTML = "Preview:<br>"+parse($textarea.value,options2);
 }
