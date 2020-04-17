@@ -76,3 +76,8 @@ function makePost() {
 function onUpdate() {
 	$post.innerHTML = "Preview:<br>"+parse($textarea.value,options2);
 }
+
+	if (window.location.hash) {
+		$id.value = (window.location.hash).substr(1);
+		showPost();
+	}
