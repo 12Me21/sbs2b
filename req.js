@@ -27,39 +27,104 @@ function request(endpoint, method, callback, data, auth) {
 	}
 }
 
+// event handler system
+// maybe make this a nice class later
+function callAll(list, args, th) {
+	if (list)
+		for(var i=0;i<list.length;i++){
+			list[i].apply(th, args);
+		}
+}
+/*function eventify(cls) {
+	cls.prototype.on = function(name, callback) {
+		if (this.events.name) {
+			this.events.name.push(callback);
+		} else {
+			this.events.name = [callback];
+		}
+	}
+}
+function initEvents(obj) {
+	obj.events = {};
+}*/
+
 function Myself() {
+	this.events = {};
+}
+//eventify(Myself);
+
+Myself.prototype.logOut = function() {
+	callAll(this.events.logOut, [], this);
+	this.auth = null;
 }
 
 Myself.prototype.logIn = function(username, password, callback) {
-	request("User/authenticate", "POST", function(auth, code){
-		if (code == 200) {
-			this.auth = window.localStorage.auth = auth;
-			callback.bind(this)();
-		} else {
-			this.auth = null;
-			callback.bind(this)(auth); //error
-		}
-	}, {username:username,password:password});
-}
-
-var myself = new Myself();
-
-function requestAuth(username, password, callback) {
-}
-
-function login(username, password, callback) {
-	console.log("logging in...");
 	if (window.localStorage.auth) {
 		console.log("using cached auth");
-		callback(window.localStorage.auth)
+		this.auth = window.localStorage.auth;
+		callback.call(this);
 	} else {
 		console.log("requesting auth");
-		requestAuth(username, password, function(auth, error) {
-			if (auth) {
-				callback(auth);
+		request("User/authenticate", "POST", function(auth, code){
+			if (code == 200) {
+				console.log("got auth");
+				this.auth = window.localStorage.auth = auth;
+				callback.call(this);
 			} else {
-				callback(null, error);
+				console.log("auth request failed: "+auth);
+				this.auth = null;
+				callback.call(this, auth); //error
 			}
-		});
+		}, {username:username,password:password});
 	}
+}
+
+Myself.prototype.request = function(url, method, callback, data) {
+	request(url, method, callback, data, this.auth);
+}
+
+Myself.prototype.register1 = function(username, password, email, callback) {
+	this.request("User/register", "POST", function(resp, code){
+		if (code==200) {
+			callback.call(this);
+		} else {
+			callback.call(this, resp);
+		}
+	}, {username:username, password:password, email:email});
+}
+
+Myself.prototype.sendEmail = function(email, callback) {
+	this.request("User/register/sendemail", "POST", function(resp, code){
+		if (code==200) {
+			callback.call(this); //success
+		} else {
+			callback.call(this, resp);
+		}
+	}, {email: email});
+}
+
+Myself.prototype.confirm = function(key, callback) {
+	this.request("User/register/confirm", "POST", function(resp, code) {
+		if (code==200) {
+			callback.call(this);
+		} else {
+			callback.call(this, resp);
+		}
+	}, {confirmationKey: key});
+}
+
+Myself.prototype.register = function(username, password, email, callback) {
+	this.register1(username, password, email, function(e) {
+		if (e) {
+			callback.call(this, e);
+		} else {
+			this.sendEmail(email, function(e) {
+				if (e) {
+					callback.call(this, e);
+				} else {
+					callback.call(this);
+				}
+			})
+		}
+	});
 }
