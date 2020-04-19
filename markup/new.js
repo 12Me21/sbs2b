@@ -15,7 +15,9 @@ var options = {
 		return document.createTextNode(text);
 	},
 	bold: creator('b'),
-	
+	italic: creator('i'),
+	underline: creator('u'),
+	strikethrough: creator('s'),
 };
 
 function parse(code, options) {
@@ -43,7 +45,7 @@ function parse(code, options) {
 			addText(c);
 			scan();
 		//===============
-		// { group start
+		// { group start (why did I call these "groups"?)
 		} else if (c == "{") {
 			scan();
 			stack.push({type:'group'});
@@ -60,19 +62,22 @@ function parse(code, options) {
 			} else {
 				addText("}");
 			}
+		//========
+		// * bold
 		} else if (c == "*") {
 			scan();
-			if (top_is('bold')) {
-				endBlock();
-			} else if (!stackContains('bold')) {
-				console.log("bold starting");
-				addBlock({
-					node: options.bold(),
-					type: 'bold',
-				});
-			} else {
-				addText('*');
-			}
+			doMarkup('bold', options.bold, "*");
+		} else if (c == "/") {
+			scan();
+			doMarkup('italic', options.italic, "/");
+		} else if (c == "_") {
+			scan();
+			doMarkup('underline', options.underline, "_");
+		} else if (c == "~") {
+			scan();
+			doMarkup('strikethrough', options.strikethrough, "~");
+		//=============
+		// normal char
 		} else {
 			addText(c);
 			scan();
@@ -83,7 +88,35 @@ function parse(code, options) {
 	return output;
 	
 	// ######################
-
+	
+	function doMarkup(type, create, symbol) {
+		if (canStartMarkup(type)) {
+			addBlock({type:type, node:create()});
+		} else if (canEndMarkup(type)) {
+			endBlock();
+		} else {
+			addText(symbol);
+		}
+	}
+	// todo: maybe have support for non-ASCII punctuation/whitespace?
+	function canStartMarkup(type) {
+		return (
+			(!code[i-2] || char_in(code[i-2], " \t\n({'\"")) && //prev char is one of these (or start of text)
+			!char_in(c, " \t\n,'\"") && //next char is not one of these
+			!stackContains(type)
+		);
+	}
+	function canEndMarkup(type) {
+		return (
+			top_is(type) && //there is an item to close
+			!char_in(code[i-2], " \t\n,'\"") && //prev char is not one of these
+			(!c || char_in(c, " \t\n-.,:!?')}\"")) //next char is one of these (or end of text)
+		);
+	}
+	function char_in(chr, list) {
+		return chr && list.indexOf(chr) != -1;
+	}
+	
 	function scan() {
 		i++;
 		c = code.charAt(i);
@@ -97,7 +130,6 @@ function parse(code, options) {
 		}
 		return false;
 	}
-
 	function top_is(type) {
 		var top = stack.top();
 		return top && top.type == type;
@@ -111,7 +143,6 @@ function parse(code, options) {
 			curr = data.node;
 		}
 	}
-	
 	function addText(text) {
 		if (text)
 			textBuffer += text;
@@ -122,7 +153,6 @@ function parse(code, options) {
 			textBuffer = ""
 		}
 	}
-
 	function endBlock() {
 		flushText();
 		stack.pop();
