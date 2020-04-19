@@ -21,6 +21,9 @@ var options = {
 function parse(code, options) {
 	var output = options.root();
 	var curr = output;
+	
+	// this is a list of all nodes that we are currently inside
+	// as well as {}-block pseudo-nodes
 	var stack = [{node:curr}];
 	stack.top = function() {
 		return stack[stack.length-1];
@@ -39,6 +42,24 @@ function parse(code, options) {
 			scan();
 			addText(c);
 			scan();
+		//===============
+		// { group start
+		} else if (c == "{") {
+			scan();
+			stack.push({type:'group'});
+		//=============
+		// } group end
+		} else if (c == "}") {
+			scan();
+			if (stackContains('group')) {
+				// close everything that was opened inside the group
+				while (!top_is('group')) {
+					endBlock();
+				}
+				endBlock();
+			} else {
+				addText("}");
+			}
 		} else if (c == "*") {
 			scan();
 			if (top_is('bold')) {
@@ -83,11 +104,12 @@ function parse(code, options) {
 	}
 	
 	function addBlock(data) {
-		console.log("[");
-		flushText();
 		stack.push(data);
-		options.append(curr, data.node);
-		curr = data.node;
+		if (data.node) {
+			flushText();
+			options.append(curr, data.node);
+			curr = data.node;
+		}
 	}
 	
 	function addText(text) {
@@ -102,10 +124,12 @@ function parse(code, options) {
 	}
 
 	function endBlock() {
-		console.log("]");
 		flushText();
 		stack.pop();
-		curr = stack.top().node;
+		var top = stack.top();
+		if (top.node) {
+			curr = stack.top().node;
+		}
 	}
 }
 
