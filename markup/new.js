@@ -96,7 +96,8 @@ function parse(code, options) {
 					headingLevel++;
 					scan();
 				}
-				if (headingLevel <= 3) {
+				if (c == " " && headingLevel <= 3) {
+					scan();
 					startBlock({
 						type:'heading',
 						node:options.heading(headingLevel)
