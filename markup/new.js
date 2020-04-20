@@ -87,8 +87,26 @@ function parse(code, options) {
 		//========
 		// * bold
 		} else if (c == "*") {
+			var wasStartOf = startOfLine;
 			scan();
-			doMarkup('bold', options.bold, "*");
+			if (wasStartOf && (c==" " || c=="*") && !stackContains('heading')) {
+				console.log("HEADING");
+				var headingLevel = 1;
+				while (c == "*") {
+					headingLevel++;
+					scan();
+				}
+				if (headingLevel <= 3) {
+					startBlock({
+						type:'heading',
+						node:options.heading(headingLevel)
+					});
+				} else { //invalid heading level
+					addText('*'.repeat(headingLevel));
+				}
+			} else {
+				doMarkup('bold', options.bold, "*");
+			}
 		} else if (c == "/") {
 			scan();
 			doMarkup('italic', options.italic, "/");
@@ -98,23 +116,6 @@ function parse(code, options) {
 		} else if (c == "~") {
 			scan();
 			doMarkup('strikethrough', options.strikethrough, "~");
-		//=============
-		// #... heading
-		} else if (c == "#" && startOfLine && !stackContains('heading')) {
-			var headingLevel = 1;
-			scan();
-			while (c == "#") {
-				headingLevel++;
-				scan();
-			}
-			if (headingLevel <= 3) {
-				startBlock({
-					type:'heading',
-					node:options.heading(headingLevel)
-				});
-			} else { //invalid heading level
-				addText('#'.repeat(headingLevel));
-			}
 		//============
 		// >... quote
 		} else if (c == ">" && startOfLine) {
@@ -210,8 +211,26 @@ function parse(code, options) {
 			if (top.type == 'heading' || top.type == 'quote') {
 				endBlock();
 				eat = true;
-			} else if (top.type == 'list') {
-				// this will be very complicated
+			} else if (top.type == 'item') {
+				// this.......
+				eat = true;
+				endBlock();
+				if (top_is('list')) //should always be true
+					endBlock();
+				// so basically with a list there are 4 options:
+				// 1: (no next item) end of entire list
+				// - item
+				// <something else>
+				// 2: (same indent) continuation of current list
+				// - item
+				// - item
+				// 3: (increasing indent) sub-list
+				// - item
+				//  - item
+				// 4: (decreasing indent) end of sub-list
+				// - item
+				//  - item
+				// - item
 				
 			} else {
 				if (!eat)
