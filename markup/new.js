@@ -16,6 +16,7 @@ var options = {
 		return document.createTextNode(text);
 	},
 	lineBreak: creator('br'),
+	line: creator('hr'),
 	
 	root: creator('div'),
 	// styling blocks
@@ -30,7 +31,11 @@ var options = {
 	quote: function(user) {
 		var node = create('blockquote');
 		node.setAttribute('cite', user);
+		return node;
 	},
+	list: creator('ul'),
+	// list item
+	item: creator('li'),
 };
 
 function parse(code, options) {
@@ -129,6 +134,44 @@ function parse(code, options) {
 				node: options.quote(name)
 			});
 			skipLinebreak();
+		//==============
+		// -... list/hr
+		} else if (c == "-" && startOfLine) {
+			scan();
+			//----------
+			// --... hr
+			if (c == "-") {
+				scan();
+				var count = 2;
+				while (c == "-") {
+					count++;
+					scan();
+				}
+				if (c == "\n" || !c) {
+					skipLinebreak();
+					addBlock(options.line);
+				} else {
+					addText("-".repeat(count));
+				}
+			//------------
+			// - ... list
+			} else if (c == " ") {
+				scan();
+				startBlock({
+					type: 'list',
+					level: 0,
+					node: options.list()
+				});
+				startBlock({
+					type: 'item',
+					level: 0,
+					node: options.item()
+				});
+			//---------------
+			// - normal char
+			} else {
+				addText("-");
+			}
 		//
 		//=============
 		// normal char
