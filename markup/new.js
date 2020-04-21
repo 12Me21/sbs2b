@@ -257,6 +257,7 @@ function parse(code, options) {
 					} else if (indent > top.level) {
 						startBlock({ // create a new list
 							type: "list",
+							level: indent,
 							node: options.list(),
 						});
 						startBlock({ // then made the first item of the new list
@@ -268,25 +269,42 @@ function parse(code, options) {
 					// next item has less indent; try to exist 1 or more layers of nested lists
 					// if this fails, fall back to just creating a new item in the current list
 					} else {
-						
+						// TODO: currently this will just fail completely 
+						while(1) {
+							top = stack.top();
+							if (top && top.type == 'list') {
+								console.log("found item with level",top.level,indent);
+								if (top.level <= indent) {
+									break;
+								} else {
+									endBlock();
+								}
+							} else {
+								// no suitable list was found :(
+								// so just create a new one
+								startBlock({
+									type: 'list',
+									node: options.list()
+								});
+								break;
+							}
+						}
+						startBlock({
+							type: "item",
+							level: indent,
+							node: options.item(),
+						});
 					}
 					break; //really?
+					// yes really.
+					// yes, I know you're thinking "what if there's a list inside a quote on one line?"
+					// except both of those things are only allowed to start at the start of a line, so the only way
+					// that would be possible is if
+					// you did > 12Me21: {-list etc.
+					// except then, the {} stops the quote from ending
+					// so it's fiiiine
+					
 				}
-				// so basically with a list there are 4 options:
-				// 1: (no next item) end of entire list
-				// - item
-				// <something else>
-				// 2: (same indent) continuation of current list
-				// - item
-				// - item
-				// 3: (increasing indent) sub-list
-				// - item
-				//  - item
-				// 4: (decreasing indent) end of sub-list
-				// - item
-				//  - item
-				// - item
-				
 			} else {
 				if (!eat)
 					addBlock(options.lineBreak());
