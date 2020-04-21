@@ -1,4 +1,5 @@
 var create = document.createElement.bind(document);
+var createText = document.createTextNode.bind(document);
 var creator = function(tag) {
 	return create.bind(document, tag);
 };
@@ -7,26 +8,53 @@ var options = {
 	append: function(parent, child) {
 		parent.appendChild(child);
 	},
-	parent: function(child) {
+	parent: function(child) { // unused currently
 		return child.parent;
 	},
 
-	// text node
+	//========================
+	// nodes without children:
 	text: function(text) {
-		return document.createTextNode(text);
+		return createText(text);
 	},
 	lineBreak: creator('br'),
 	line: creator('hr'),
-	
+	// code block
+	code: function(code, language) {
+		var node = create('pre');
+		node.className = 'highlight-sb';
+		node.dataset.lang = language;
+		node.innerHTML = highlightSB(code, language);
+		return node;
+	},
+	// inline code
+	icode: function(code) {
+		var node = create('code');
+		node.textContent = code;
+		return node;
+	},
+	audio: function(url) {
+		var node = create('audio');
+		node.setAttribute('controls', "");
+		node.setAttribute('src', url);
+		return node;
+	},
+	video: function(url) {
+		var node = create('video');
+		node.setAttribute('controls', "");
+		node.setAttribute('src', url);
+		return node;
+	},
+
+	//=====================
+	// nodes with children
 	root: creator('div'),
-	// styling blocks
 	bold: creator('b'),
 	italic: creator('i'),
 	underline: creator('u'),
 	strikethrough: creator('s'),
-	// heading
 	heading: function(level) { // input: 1, 2, or 3
-		return create('h'+level);
+		return create('h'+level);//['h1','h2','h3'][level-1] || 'h3');
 	},
 	quote: function(user) {
 		var node = create('blockquote');
@@ -34,9 +62,7 @@ var options = {
 		return node;
 	},
 	list: creator('ul'),
-	// list item
-	item: creator('li'),
-	//
+	item: creator('li'), // (list item)
 	link: function(url) {
 		var node = create('a');
 		node.setAttribute('href', url);
@@ -49,17 +75,11 @@ var options = {
 			create('th') :
 			create('td');
 	},
-	code: function(code, language) {
-		var node = create('pre');
-		node.dataset.lang = language;
-		node.textContent = code;
+	image: function(url) {
+		var node = create('img');
+		node.setAttribute('src', url);
 		return node;
 	},
-	icode: function(code) {
-		var node = create('code');
-		node.textContent = code;
-		return node;
-	}
 };
 
 function parse(code, options) {
@@ -75,6 +95,10 @@ function parse(code, options) {
 	var textBuffer = "";
 	var inside = {};
 	var startOfLine = true;
+	var lastWasBlock;
+	// todo:
+	// so, the way to prevent extra linebreaks (without just ignoring them all) is
+	// to ignore linebreaks around blocks. (before and after, as well as inside, ignore 1 leading/trailing linebreak)
 	
 	var i = -1;
 	var c;
@@ -188,15 +212,23 @@ function parse(code, options) {
 				scan();
 				startBlock('list', {level:0});
 				startBlock('item', {level:0});
+				// hmm...
+				// it's strange to think that
+				// people will be reading this
+				// after I'm dead
+				//...
 			//---------------
 			// - normal char
 			} else {
 				addText("-");
 			}
+		//==========================
+		// ] end link if inside one
 		} else if (c == "]" && top_is('link')){
 			scan();
 			endBlock();
-		// Links
+		//================
+		// https?:// link
 		} else if (c == "h") { //lol this is silly
 			var start = i;
 			scan();
@@ -208,6 +240,7 @@ function parse(code, options) {
 				startBlock('link', {}, url);
 				if (c == "[") {
 					scan();
+					skipLinebreak();
 				} else {
 					addText(url);
 					endBlock();
@@ -215,6 +248,8 @@ function parse(code, options) {
 			} else {
 				addText("h");
 			}
+		//============
+		// |... table
 		} else if (c == "|") {
 			var top = stack.top();
 			// continuation
@@ -283,34 +318,35 @@ function parse(code, options) {
 				scan();
 				addText("|");
 			}
-		// code blokc
-		} else if (c == "\x60") {
+		//===========
+		// `... code
+		} else if (c == "`") {
 			scan();
-			//----------------------
-			// backtick inline code
-			if (c != "\x60") {
+			//---------------
+			// ` inline code
+			if (c != "`") {
 				start = i;
-				while (c && c != "\x60")
+				while (c && c != "`")
 					scan();
 				addBlock(options.icode(code.substring(start, i)));
 				scan();
-			//---------------
-			// backtick*2...
+			//-------
+			// ``...
 			} else {
 				scan();
-				//-----------------------
-				// backtick*3 code block
-				if (c == "\x60") {
+				//----------------
+				// ``` code block
+				if (c == "`") {
 					scan();
 					// read lang name
 					start = i;
-					while (c && c!="\n" && c!="\x60")
+					while (c && c!="\n" && c!="`")
 						scan();
 					var language = code.substring(start, i).trim().toLowerCase();
 					if (c == "\n")
 						scan();
 					start = i;
-					i = code.indexOf("\x60\x60\x60", i);
+					i = code.indexOf("```", i);
 					addBlock(options.code(
 						code.substring(start, i!=-1 ? i : code.length),
 						language,
@@ -323,10 +359,11 @@ function parse(code, options) {
 						scan();
 					}
 					skipLinebreak();
-				// backtick*2 invalid
+				//------------
+				// `` invalid
 				} else {
 					scan();
-					addText("\x60\x60");
+					addText("``");
 				}
 			}
 		//
@@ -360,12 +397,18 @@ function parse(code, options) {
 			var top = stack.top();
 			if (!force && top.type == null) {
 				endBlock();
-				return;
+				break;
 			}
 			// hm maybe have a way to define actions on block close...
 			// nah
 			// TODO: add other block-type elements here
 			// maybe just have a list of which elements are blocks somewhere
+			// actually this is kind of weird
+			// basically it's to fix uh
+			// {| dumb small table}<linebreak>
+			// idk...
+			// oh and also this should always only skip ONE line break
+			// so probably have an 'eat' flag like before
 			if (top.type == 'table') {
 				skipLinebreak();
 			}
@@ -381,7 +424,6 @@ function parse(code, options) {
 				endBlock();
 				eat = true;
 			} else if (top.type == 'item') {
-				// this.......
 				eat = true;
 				if (top.type == 'item')
 					endBlock();
@@ -453,7 +495,8 @@ function parse(code, options) {
 			}
 		}
 	}
-	
+
+	// common code for all text styling tags (bold etc.)
 	function doMarkup(type, create, symbol) {
 		if (canStartMarkup(type)) {
 			startBlock(type, {});
@@ -507,12 +550,7 @@ function parse(code, options) {
 		var top = stack.top();
 		return top && top.type == type;
 	}
-
-	// idea: the only time we ever pass anything except {} as data is with lists
-	// which use it to store the indent level
-	// we never use data and arg at the same time
-	// really this could be 2 arg function (type, data) and pass data to the function as well as storing it in the stack.
-	// only disadvantage is that instead of stackItem.level it'll be stackItem.tmp or whatever
+	
 	function startBlock(type, data, arg) {
 		data.type = type;
 		if (type) {
@@ -524,14 +562,6 @@ function parse(code, options) {
 		stack.push(data);
 		return data;
 	}
-	/*function startBlock(data) {
-		stack.push(data);
-		if (data.node) {
-			flushText();
-			options.append(curr, data.node);
-			curr = data.node;
-		}
-	}*/
 	// add simple block with no children
 	function addBlock(node) {
 		flushText();
