@@ -62,7 +62,7 @@ function parse(code, options) {
 			endLine();
 		//==========
 		// \ escape
-		} else if (c == "/") {
+		} else if (c == "\\") {
 			scan();
 			if (c == "\n")
 				addBlock(options.lineBreak());
@@ -120,6 +120,10 @@ function parse(code, options) {
 		//============
 		// >... quote
 		} else if (c == ">" && startOfLine) {
+			// todo: maybe >text should be a quote without author... 
+			// need to add a way to add information to quotes:
+			// - user ID
+			// - post ID
 			scan();
 			start = i;
 			while (c == " ")
@@ -149,9 +153,13 @@ function parse(code, options) {
 					count++;
 					scan();
 				}
+				//-------------
+				// ---<EOL> hr
 				if (c == "\n" || !c) {
 					skipLinebreak();
 					addBlock(options.line);
+				//----------
+				// ---... normal text
 				} else {
 					addText("-".repeat(count));
 				}
@@ -216,8 +224,20 @@ function parse(code, options) {
 				// this.......
 				eat = true;
 				endBlock();
-				if (top_is('list')) //should always be true
-					endBlock();
+				var indent = 0;
+				while (c == " ") {
+					indent++;
+					scan();
+				}
+				if (c != "-") {
+					if (top_is('list')) //should ALWAYS be true
+						endBlock();
+					addText(" ".repeat(indent) + c); //is this right?
+				} else {
+					if (indent == top.level) {
+						
+					}
+				}
 				// so basically with a list there are 4 options:
 				// 1: (no next item) end of entire list
 				// - item
