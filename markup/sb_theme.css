@@ -1,0 +1,39 @@
+/* example theme */
+/*
+NOTE: "function" means "built-in function OR VARIABLE" (actual functions use the "statement" classname)
+This is for backwards compatibility with the old CSS.
+old SBhighlight couldn't tell functions and variables apart, and "function" was used for all builtins.
+*/
+
+.highlight-sb {
+	color: rgb(198,175,157); /* default text color (for non-highlighted sections) */
+	background-color: rgb( 21, 16, 14); /* code block background color */
+}
+.highlight-sb > span {
+	background-color: transparent; /* reset background color (don't change this probably) */
+}
+
+.highlight-sb > .keyword  {color:#7BB5F7;font-weight:bolder;} /* keywords (including TO and STEP, when not used as variables) */
+.highlight-sb > .variable { /* all variables */
+	color:#FFDDEE;
+	margin-right:0.1em;
+	margin-left:-0.1em;
+}
+.highlight-sb > .statement{color:#BC7BFB;font-weight:bold;} /* all functions */
+.highlight-sb > .label    {color:#F7A500;} /* labels (not label strings) */
+.highlight-sb > .string   {color:#A5ADA5;} /* strings (including label strings) */
+.highlight-sb > .comment  {color:#10BD42;} /* comment (not REM) */
+.highlight-sb > .operator {color:#FFFFBB;} /* operators (including AND DIV etc.) */
+.highlight-sb > .number   {color:#F77BB5;} /* numbers (including TRUE and FALSE) */
+.highlight-sb > .name     {color:#FF6010;} /* name of DEF */ 
+/* code.sbhighlight > .equals { /* Assignment = */
+
+.highlight-sb > .function.variable  {color:#DDDDFF;}
+.highlight-sb > .function.statement {color:#7B7BF7;}
+
+.highlight-sb > .function  {font-style:italic;} /* builtin functions and system variables (in addition to .statement and .variable) */
+/*code.sbhighlight > .to-step       { /* TO and STEP, when not used as variables, (in addition to .keyword) */
+/*code.sbhighlight > .word-operator { /* AND, DIV, etc. (in addition to .operator) */
+/*code.sbhighlight > .def           { /* DEF (in addition to .keyword) */
+/*code.sbhighlight > .label-string  { /* label strings (in addition to .string) */
+/*code.sbhighlight > .true-false    { /* TRUE and FALSE (in addition to .number) */
