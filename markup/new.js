@@ -99,11 +99,12 @@ function parse(code, options) {
 			scan();
 			startBlock(null, {});
 			skipLinebreak();
+			startOfLine = true;
 		//=============
 		// } group end
 		} else if (c == "}") {
 			scan();
-			if (stackContains('group')) {
+			if (stackContains(null)) {
 				closeAll(false);
 			} else {
 				addText("}");
@@ -356,7 +357,7 @@ function parse(code, options) {
 	// closeAll(false) - called at end of {} block
 	function closeAll(force) {
 		while(stack.length) {
-			if (!force && top_is("group")) {
+			if (!force && top_is(null)) {
 				endBlock();
 				return;
 			}
@@ -481,7 +482,11 @@ function parse(code, options) {
 		i++;
 		c = code.charAt(i);
 	}
-	
+
+	// um like
+	// don't use 'null' as a type name probably
+	// In THis House
+	// We use ==         ,
 	function stackContains(type) {
 		for (var i=0; i<stack.length; i++) {
 			if (stack[i].type == type) {
