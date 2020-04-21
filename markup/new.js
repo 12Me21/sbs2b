@@ -48,6 +48,17 @@ var options = {
 		return header ?
 			create('th') :
 			create('td');
+	},
+	code: function(code, language) {
+		var node = create('pre');
+		node.dataset.lang = language;
+		node.textContent = code;
+		return node;
+	},
+	icode: function(code) {
+		var node = create('code');
+		node.textContent = code;
+		return node;
 	}
 };
 
@@ -270,6 +281,52 @@ function parse(code, options) {
 			} else {
 				scan();
 				addText("|");
+			}
+		// code blokc
+		} else if (c == "\x60") {
+			scan();
+			//----------------------
+			// backtick inline code
+			if (c != "\x60") {
+				start = i;
+				while (c && c != "\x60")
+					scan();
+				addBlock(options.icode(code.substring(start, i)));
+				scan();
+			//---------------
+			// backtick*2...
+			} else {
+				scan();
+				//-----------------------
+				// backtick*3 code block
+				if (c == "\x60") {
+					scan();
+					// read lang name
+					start = i;
+					while (c && c!="\n" && c!="\x60")
+						scan();
+					var language = code.substring(start, i).trim().toLowerCase();
+					if (c == "\n")
+						scan();
+					start = i;
+					i = code.indexOf("\x60\x60\x60", i);
+					addBlock(options.code(
+						code.substring(start, i!=-1 ? i : code.length),
+						language,
+					));
+					if (i != -1) {
+						i += 2;
+						scan();
+					} else {
+						i = code.length;
+						scan();
+					}
+					skipLinebreak();
+				// backtick*2 invalid
+				} else {
+					scan();
+					addText("\x60\x60");
+				}
 			}
 		//
 		//=============
