@@ -357,9 +357,17 @@ function parse(code, options) {
 	// closeAll(false) - called at end of {} block
 	function closeAll(force) {
 		while(stack.length) {
-			if (!force && top_is(null)) {
+			var top = stack.top();
+			if (!force && top.type == null) {
 				endBlock();
 				return;
+			}
+			// hm maybe have a way to define actions on block close...
+			// nah
+			// TODO: add other block-type elements here
+			// maybe just have a list of which elements are blocks somewhere
+			if (top.type == 'table') {
+				skipLinebreak();
 			}
 			endBlock();
 		}
