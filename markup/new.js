@@ -36,6 +36,19 @@ var options = {
 	list: creator('ul'),
 	// list item
 	item: creator('li'),
+	//
+	link: function(url) {
+		var node = create('a');
+		node.setAttribute('href', url);
+		return node;
+	},
+	table: creator('table'),
+	row: creator('tr'),
+	cell: function(header) {
+		return header ?
+			create('th') :
+			create('td');
+	}
 };
 
 function parse(code, options) {
@@ -168,6 +181,97 @@ function parse(code, options) {
 			} else {
 				addText("-");
 			}
+		} else if (c == "]" && top_is('link')){
+			scan();
+			endBlock();
+		// Links
+		} else if (c == "h") { //lol this is silly
+			var start = i;
+			scan();
+			if (code.substr(start,7) == "http://" || code.substr(start,8) == "https://") {
+				while (isUrlChar(c)) {
+					scan();
+				}
+				var url = code.substring(start, i);
+				startBlock('link', {}, url);
+				if (c == "[") {
+					scan();
+				} else {
+					addText(url);
+					endBlock();
+				}
+			} else {
+				addText("h");
+			}
+		} else if (c == "|") {
+			var top = stack.top();
+			// continuation
+			if (top.type == 'cell') {
+				var row = top.row;
+				var table = top.row.table;
+				scan();
+				skipLinebreak();
+				//--------------
+				// | | next row
+				if (c == "|") {
+					scan();
+					if (table.columns == null)
+						table.columns = table.rowCells;
+					table.rowCells = 0;
+					endBlock();
+					if (top_is('row')) //always
+						endBlock();
+					var row = startBlock('row', {table:table});
+					if (c == "*") {
+						scan();
+						row.header = true;
+					} else {
+						row.header = false;
+					}
+					startBlock('cell', {row:row}, row.header);
+					skipLinebreak();
+				//--------------------------
+				// | next cell or table end
+				} else {
+					table.rowCells++;
+					// end of table
+					// table ends when number of cells in current row = number of cells in first row
+					// single-row tables are not easily possible ..
+					if (table.columns != null && table.rowCells > table.columns) {
+						endBlock(); //end cell
+						if (top_is('row')) //always
+							endBlock();
+						if (top_is('table')) //always
+							endBlock();
+						skipLinebreak();
+					} else { // next cell
+						endBlock();
+						startBlock('cell', {row:row}, row.header);
+					}
+				}
+			// start of new table (must be at beginning of line)
+			} else if (startOfLine) {
+				scan();
+				table = startBlock('table', {
+					columns: null,
+					rowCells: 0,
+				});
+				row = startBlock('row', {
+					table: table,
+				});
+				if (c == "*") {
+					scan();
+					row.header = true;
+				} else {
+					row.header = false;
+				}
+				startBlock('cell', {
+					row: row,
+				}, row.header);
+			} else {
+				scan();
+				addText("|");
+			}
 		//
 		//=============
 		// normal char
@@ -181,10 +285,15 @@ function parse(code, options) {
 	return output;
 	
 	// ######################
-
+	
 	function skipLinebreak() {
 		if (c == "\n")
 			scan();
+	}
+
+	// ew regex
+	function isUrlChar(c) {
+		return c && (/[-\w$.+!*'(),;/?:@=&]/).test(c);
 	}
 	
 	// closeAll(true) - called at end of document
@@ -344,6 +453,7 @@ function parse(code, options) {
 			curr = data.node;
 		}
 		stack.push(data);
+		return data;
 	}
 	/*function startBlock(data) {
 		stack.push(data);
