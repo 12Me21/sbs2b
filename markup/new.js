@@ -48,7 +48,11 @@ var options = {
 
 	//=====================
 	// nodes with children
-	root: creator('div'),
+	root: function() {
+		var node = create('div');
+		node.style.whiteSpace = 'pre-wrap';
+		return node;
+	},
 	bold: creator('b'),
 	italic: creator('i'),
 	underline: creator('u'),
@@ -88,7 +92,7 @@ function parse(code, options) {
 	
 	// this is a list of all nodes that we are currently inside
 	// as well as {}-block pseudo-nodes
-	var stack = [{node:curr}];
+	var stack = [{node:curr, type:'root'}];
 	stack.top = function() {
 		return stack[stack.length-1];
 	};
@@ -99,6 +103,7 @@ function parse(code, options) {
 	// todo:
 	// so, the way to prevent extra linebreaks (without just ignoring them all) is
 	// to ignore linebreaks around blocks. (before and after, as well as inside, ignore 1 leading/trailing linebreak)
+	// idea:
 	
 	var i = -1;
 	var c;
@@ -283,14 +288,18 @@ function parse(code, options) {
 					// end of table
 					// table ends when number of cells in current row = number of cells in first row
 					// single-row tables are not easily possible ..
+					console.log(table.columns, row.cells, code.substr(i,10));
 					if (table.columns != null && row.cells > table.columns) {
+						console.log("ENDING TABLE");
 						endBlock(); //end cell
 						if (top_is('row')) //always
 							endBlock();
 						if (top_is('table')) //always
 							endBlock();
 						skipLinebreak();
+						console.log(curr);
 					} else { // next cell
+console.log("NOT ENDING");
 						endBlock();
 						startBlock('cell', {row:row}, row.header);
 					}
@@ -374,7 +383,8 @@ function parse(code, options) {
 			scan();
 		}
 	}
-	
+
+	flushText();
 	closeAll(true);
 	return output;
 	
@@ -395,6 +405,9 @@ function parse(code, options) {
 	function closeAll(force) {
 		while(stack.length) {
 			var top = stack.top();
+			if (top.type == 'root') {
+				break;
+			}
 			if (!force && top.type == null) {
 				endBlock();
 				break;
@@ -580,12 +593,13 @@ function parse(code, options) {
 	function endBlock() {
 		flushText();
 		stack.pop();
-		var top = stack.top();
-		if (!top) {
-			curr = null;
-		} else if (top.node) {
-			curr = stack.top().node;
+		var i=stack.length-1;
+		// this skips {} fake nodes
+		// it will always find at least the root <div> element I hope
+		while (!stack[i].node){
+			i--;
 		}
+		curr = stack[i].node;
 	}
 }
 

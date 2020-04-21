@@ -13,4 +13,12 @@
 	$output.innerHTML = "";
 	$output.appendChild(parse($textarea.value,options));
 	}
+	function randomString(len) {
+	var s="";
+	for (var i=0;i<len;i++){
+						  s+=String.fromCharCode(Math.random()*95+32|0);
+						  }
+						  return s;
+						  }
+						  
 </script>
