@@ -223,7 +223,8 @@ function parse(code, options) {
 			} else if (top.type == 'item') {
 				// this.......
 				eat = true;
-				endBlock();
+				if (top.type == 'item')
+					endBlock();
 				var indent = 0;
 				while (c == " ") {
 					indent++;
@@ -231,9 +232,13 @@ function parse(code, options) {
 				}
 				// OPTION 1:
 				// no next item; end list
+				console.log("what is C?",c);
 				if (c != "-") {
-					if (top_is('list')) //should ALWAYS be true
+					console.log ("ending list",stack.top());
+					while (top_is('list')) {//should ALWAYS happen at least once
 						endBlock();
+						console.log(stack.top());
+					}
 					addText(" ".repeat(indent));
 				} else {
 					scan();
@@ -243,21 +248,19 @@ function parse(code, options) {
 					// next item has same indent level; add item to list
 					if (indent == top.level) {
 						startBlock({
+							type: "item",
 							level: indent,
 							node: options.item(),
 						});
 					// OPTION 3:
 					// next item has larger indent; start nested list	
 					} else if (indent > top.level) {
-						// THREE BLOCKS!!!
-						startBlock({ // add a new item to the current list
-							level: top.level,
-							node: options.item(),
-						});
-						startBlock({ // create a new list inside that item
+						startBlock({ // create a new list
+							type: "list",
 							node: options.list(),
 						});
 						startBlock({ // then made the first item of the new list
+							type: "item",
 							level: indent,
 							node: options.item(),
 						});
@@ -267,6 +270,7 @@ function parse(code, options) {
 					} else {
 						
 					}
+					break; //really?
 				}
 				// so basically with a list there are 4 options:
 				// 1: (no next item) end of entire list
