@@ -229,12 +229,42 @@ function parse(code, options) {
 					indent++;
 					scan();
 				}
+				// OPTION 1:
+				// no next item; end list
 				if (c != "-") {
 					if (top_is('list')) //should ALWAYS be true
 						endBlock();
-					addText(" ".repeat(indent) + c); //is this right?
+					addText(" ".repeat(indent));
 				} else {
+					scan();
+					while (c == " ")
+						scan();
+					// OPTION 2:
+					// next item has same indent level; add item to list
 					if (indent == top.level) {
+						startBlock({
+							level: indent,
+							node: options.item(),
+						});
+					// OPTION 3:
+					// next item has larger indent; start nested list	
+					} else if (indent > top.level) {
+						// THREE BLOCKS!!!
+						startBlock({ // add a new item to the current list
+							level: top.level,
+							node: options.item(),
+						});
+						startBlock({ // create a new list inside that item
+							node: options.list(),
+						});
+						startBlock({ // then made the first item of the new list
+							level: indent,
+							node: options.item(),
+						});
+					// OPTION 4:
+					// next item has less indent; try to exist 1 or more layers of nested lists
+					// if this fails, fall back to just creating a new item in the current list
+					} else {
 						
 					}
 				}
