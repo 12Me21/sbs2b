@@ -3,8 +3,10 @@
 <script src="new.js"></script>
 
 <textarea id="$textarea" oninput="window.setTimeout(update, 10)"></textarea>
+<hr>
 <div id="$output"></div>
 <script>
+	window.onload = update;
 	function update() {
 	$output.innerHTML = "";
 	$output.appendChild(parse($textarea.value,options));
