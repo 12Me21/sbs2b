@@ -73,7 +73,7 @@ function parse(code, options) {
 		// { group start (why did I call these "groups"?)
 		} else if (c == "{") {
 			scan();
-			startBlock({type:'group'});
+			startBlock(null, {});
 			skipLinebreak();
 		//=============
 		// } group end
@@ -98,10 +98,7 @@ function parse(code, options) {
 				}
 				if (c == " " && headingLevel <= 3) {
 					scan();
-					startBlock({
-						type:'heading',
-						node:options.heading(headingLevel)
-					});
+					startBlock('heading', {}, headingLevel);
 				} else { //invalid heading level
 					addText('*'.repeat(headingLevel));
 				}
@@ -135,10 +132,7 @@ function parse(code, options) {
 				scan();
 			while (c == " ")
 				scan();
-			startBlock({
-				type: 'quote',
-				node: options.quote(name)
-			});
+			startBlock('quote', {}, name);
 			skipLinebreak();
 		//==============
 		// -... list/hr
@@ -167,16 +161,8 @@ function parse(code, options) {
 			// - ... list
 			} else if (c == " ") {
 				scan();
-				startBlock({
-					type: 'list',
-					level: 0,
-					node: options.list()
-				});
-				startBlock({
-					type: 'item',
-					level: 0,
-					node: options.item()
-				});
+				startBlock('list', {level:0});
+				startBlock('item', {level:0});
 			//---------------
 			// - normal char
 			} else {
@@ -247,24 +233,12 @@ function parse(code, options) {
 					// OPTION 2:
 					// next item has same indent level; add item to list
 					if (indent == top.level) {
-						startBlock({
-							type: "item",
-							level: indent,
-							node: options.item(),
-						});
+						startBlock('item', {level: indent});
 					// OPTION 3:
 					// next item has larger indent; start nested list	
 					} else if (indent > top.level) {
-						startBlock({ // create a new list
-							type: "list",
-							level: indent,
-							node: options.list(),
-						});
-						startBlock({ // then made the first item of the new list
-							type: "item",
-							level: indent,
-							node: options.item(),
-						});
+						startBlock('list', {level: indent});
+						startBlock('item', {level: indent}); // then made the first item of the new list
 					// OPTION 4:
 					// next item has less indent; try to exist 1 or more layers of nested lists
 					// if this fails, fall back to just creating a new item in the current list
@@ -282,18 +256,11 @@ function parse(code, options) {
 							} else {
 								// no suitable list was found :(
 								// so just create a new one
-								startBlock({
-									type: 'list',
-									node: options.list()
-								});
+								startBlock('list', {level: indent});
 								break;
 							}
 						}
-						startBlock({
-							type: "item",
-							level: indent,
-							node: options.item(),
-						});
+						startBlock('item', {level: indent});
 					}
 					break; //really?
 					// yes really.
@@ -315,7 +282,7 @@ function parse(code, options) {
 	
 	function doMarkup(type, create, symbol) {
 		if (canStartMarkup(type)) {
-			startBlock({type:type, node:create()});
+			startBlock(type, {});
 		} else if (canEndMarkup(type)) {
 			endBlock();
 		} else {
@@ -362,15 +329,25 @@ function parse(code, options) {
 		var top = stack.top();
 		return top && top.type == type;
 	}
-	
-	function startBlock(data) {
+
+	function startBlock(type, data, arg) {
+		data.type = type;
+		if (type) {
+			data.node = options[type](arg);
+			flushText();
+			options.append(curr, data.node);
+			curr = data.node;
+		}
+		stack.push(data);
+	}
+	/*function startBlock(data) {
 		stack.push(data);
 		if (data.node) {
 			flushText();
 			options.append(curr, data.node);
 			curr = data.node;
 		}
-	}
+	}*/
 	// add simple block with no children
 	function addBlock(node) {
 		flushText();
