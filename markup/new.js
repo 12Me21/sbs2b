@@ -216,12 +216,11 @@ function parse(code, options) {
 				if (c == "|") {
 					scan();
 					if (table.columns == null)
-						table.columns = table.rowCells;
-					table.rowCells = 0;
+						table.columns = row.cells;
 					endBlock();
 					if (top_is('row')) //always
 						endBlock();
-					var row = startBlock('row', {table:table});
+					var row = startBlock('row', {table:table, cells:0});
 					if (c == "*") {
 						scan();
 						row.header = true;
@@ -233,11 +232,11 @@ function parse(code, options) {
 				//--------------------------
 				// | next cell or table end
 				} else {
-					table.rowCells++;
+					row.cells++;
 					// end of table
 					// table ends when number of cells in current row = number of cells in first row
 					// single-row tables are not easily possible ..
-					if (table.columns != null && table.rowCells > table.columns) {
+					if (table.columns != null && row.cells > table.columns) {
 						endBlock(); //end cell
 						if (top_is('row')) //always
 							endBlock();
@@ -254,10 +253,10 @@ function parse(code, options) {
 				scan();
 				table = startBlock('table', {
 					columns: null,
-					rowCells: 0,
 				});
 				row = startBlock('row', {
 					table: table,
+					cells: 0
 				});
 				if (c == "*") {
 					scan();
