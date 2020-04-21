@@ -2,3 +2,11 @@
 <link rel="stylesheet" href="style.css">
 <script src="new.js"></script>
 
+<textarea id="$textarea" oninput="window.setTimeout(update, 10)"></textarea>
+<div id="$output"></div>
+<script>
+	function update() {
+	$output.innerHTML = "";
+	$output.appendChild(parse($textarea.value,options));
+	}
+</script>
