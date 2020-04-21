@@ -330,6 +330,11 @@ function parse(code, options) {
 		return top && top.type == type;
 	}
 
+	// idea: the only time we ever pass anything except {} as data is with lists
+	// which use it to store the indent level
+	// we never use data and arg at the same time
+	// really this could be 2 arg function (type, data) and pass data to the function as well as storing it in the stack.
+	// only disadvantage is that instead of stackItem.level it'll be stackItem.tmp or whatever
 	function startBlock(type, data, arg) {
 		data.type = type;
 		if (type) {
