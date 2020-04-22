@@ -21,7 +21,7 @@ var options = {
 	line: creator('hr'),
 	// code block
 	code: function(code, language) {
-		var node = create('pre');
+		var node = create('code');
 		node.className = 'highlight-sb';
 		node.dataset.lang = language;
 		node.innerHTML = highlightSB(code, language);
@@ -30,6 +30,7 @@ var options = {
 	// inline code
 	icode: function(code) {
 		var node = create('code');
+		node.dataset.inline = 'true';
 		node.textContent = code;
 		return node;
 	},
