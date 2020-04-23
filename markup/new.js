@@ -193,6 +193,7 @@ function parse(code, options) {
 		//==============
 		// -... list/hr
 		} else if (c == "-" && startOfLine) {
+			
 			scan();
 			//----------
 			// --... hr
@@ -205,7 +206,7 @@ function parse(code, options) {
 				}
 				//-------------
 				// ---<EOL> hr
-				if (c == "\n" || !c) {
+				if (c == "\n" || !c) { //this is kind of bad
 					skipLinebreak();
 					addBlock(options.line());
 				//----------
@@ -389,7 +390,6 @@ console.log("NOT ENDING");
 				//------------
 				// `` invalid
 				} else {
-					scan();
 					addText("``");
 				}
 			}
