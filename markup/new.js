@@ -237,13 +237,14 @@ function parse(code, options) {
 		//================
 		// https?:// link
 		} else if (c == "h" || c == "!") { //lol this is silly
-			var embed;
+			var embed = false;
 			if (c == "!") {
 				embed = true;
 				scan();
 			}
 			var start = i;
 			if (code.substr(start,7) == "http://" || code.substr(start,8) == "https://") {
+				scan();
 				while (isUrlChar(c)) {
 					scan();
 				}
@@ -263,9 +264,9 @@ function parse(code, options) {
 					endBlock();
 				}
 			} else {
-				if (embed)
+				if (embed){
 					addText("!");
-				else {
+				} else {
 					scan();
 					addText("h");
 				}
@@ -414,7 +415,7 @@ console.log("NOT ENDING");
 
 	// ew regex
 	function isUrlChar(c) {
-		return c && (/[-\w$.+!*'(),;/?:@=&#%]/).test(c);
+		return c && (/[-\w\$\.+!*'(),;/\?:@=&#%]/).test(c);
 	}
 	
 	// closeAll(true) - called at end of document
