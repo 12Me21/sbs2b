@@ -1,94 +1,102 @@
-var create = document.createElement.bind(document);
-var createText = document.createTextNode.bind(document);
-var creator = function(tag) {
-	return create.bind(document, tag);
-};
-
-var options = {
-	append: function(parent, child) {
-		parent.appendChild(child);
-	},
-	parent: function(child) { // unused currently
-		return child.parent;
-	},
-
-	//========================
-	// nodes without children:
-	text: function(text) {
-		return createText(text);
-	},
-	lineBreak: creator('br'),
-	line: creator('hr'),
-	// code block
-	code: function(code, language) {
-		var node = create('code');
-		node.className = 'highlight-sb';
-		node.dataset.lang = language;
-		node.innerHTML = highlightSB(code, language);
-		return node;
-	},
-	// inline code
-	icode: function(code) {
-		var node = create('code');
-		node.dataset.inline = 'true';
-		node.textContent = code;
-		return node;
-	},
+let defoptions = (function() {
+	if (!document)
+		return;
 	
-	//=====================
-	// nodes with children
-	root: function() {
-		var node = create('div');
-		node.style.whiteSpace = 'pre-wrap';
-		return node;
-	},
-	bold: creator('b'),
-	italic: creator('i'),
-	underline: creator('u'),
-	strikethrough: creator('s'),
-	heading: function(level) { // input: 1, 2, or 3
-		return create('h'+level);//['h1','h2','h3'][level-1] || 'h3');
-	},
-	quote: function(user) {
-		var node = create('blockquote');
-		node.setAttribute('cite', user);
-		return node;
-	},
-	list: creator('ul'),
-	item: creator('li'), // (list item)
-	link: function(url) {
-		var node = create('a');
-		node.setAttribute('href', url);
-		return node;
-	},
-	table: creator('table'),
-	row: creator('tr'),
-	cell: function(header) {
-		return header ?
-			create('th') :
-			create('td');
-	},
-	image: function(url) {
-		var node = create('img');
-		node.setAttribute('src', url);
-		node.setAttribute('tabindex', "-1");
-		return node;
-	},
-	audio: function(url) {
-		var node = create('audio');
-		node.setAttribute('src', url);
-		node.setAttribute('controls', "");
-		return node;
-	},
-	video: function(url) {
-		var node = create('video');
-		node.setAttribute('src', url);
-		node.setAttribute('controls', "");
-		return node;
-	},
-};
+	var create = document.createElement.bind(document);
+	var createText = document.createTextNode.bind(document);
+	var creator = function(tag) {
+		return create.bind(document, tag);
+	};
+	
+	return {
+		append: function(parent, child) {
+			parent.appendChild(child);
+		},
+		parent: function(child) { // unused currently
+			return child.parent;
+		},
+		
+		//========================
+		// nodes without children:
+		text: function(text) {
+			return createText(text);
+		},
+		lineBreak: creator('br'),
+		line: creator('hr'),
+		// code block
+		code: function(code, language) {
+			var node = create('code');
+			node.className = 'highlight-sb';
+			node.dataset.lang = language;
+			node.innerHTML = highlightSB(code, language);
+			return node;
+		},
+		// inline code
+		icode: function(code) {
+			var node = create('code');
+			node.dataset.inline = 'true';
+			node.textContent = code;
+			return node;
+		},
+		
+		//=====================
+		// nodes with children
+		root: function() {
+			var node = create('div');
+			node.style.whiteSpace = 'pre-wrap';
+			return node;
+		},
+		bold: creator('b'),
+		italic: creator('i'),
+		underline: creator('u'),
+		strikethrough: creator('s'),
+		heading: function(level) { // input: 1, 2, or 3
+			return create('h'+level);//['h1','h2','h3'][level-1] || 'h3');
+		},
+		quote: function(user) {
+			var node = create('blockquote');
+			node.setAttribute('cite', user);
+			return node;
+		},
+		list: creator('ul'),
+		item: creator('li'), // (list item)
+		link: function(url) {
+			var node = create('a');
+			node.setAttribute('href', url);
+			return node;
+		},
+		table: creator('table'),
+		row: creator('tr'),
+		cell: function(header) {
+			return header ?
+				create('th') :
+				create('td');
+		},
+		image: function(url) {
+			var node = create('img');
+			node.setAttribute('src', url);
+			node.setAttribute('tabindex', "-1");
+			return node;
+		},
+		audio: function(url) {
+			var node = create('audio');
+			node.setAttribute('src', url);
+			node.setAttribute('controls', "");
+			return node;
+		},
+		video: function(url) {
+			var node = create('video');
+			node.setAttribute('src', url);
+			node.setAttribute('controls', "");
+			return node;
+		},
+	};
+})();
 
 function parse(code, options) {
+	if (!options)
+		return;
+	
 	var output = options.root();
 	var curr = output;
 	
