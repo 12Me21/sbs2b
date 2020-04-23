@@ -34,19 +34,7 @@ var options = {
 		node.textContent = code;
 		return node;
 	},
-	audio: function(url) {
-		var node = create('audio');
-		node.setAttribute('controls', "");
-		node.setAttribute('src', url);
-		return node;
-	},
-	video: function(url) {
-		var node = create('video');
-		node.setAttribute('controls', "");
-		node.setAttribute('src', url);
-		return node;
-	},
-
+	
 	//=====================
 	// nodes with children
 	root: function() {
@@ -83,6 +71,19 @@ var options = {
 	image: function(url) {
 		var node = create('img');
 		node.setAttribute('src', url);
+		node.setAttribute('tabindex', "-1");
+		return node;
+	},
+	audio: function(url) {
+		var node = create('audio');
+		node.setAttribute('src', url);
+		node.setAttribute('controls', "");
+		return node;
+	},
+	video: function(url) {
+		var node = create('video');
+		node.setAttribute('src', url);
+		node.setAttribute('controls', "");
 		return node;
 	},
 };
@@ -230,12 +231,17 @@ function parse(code, options) {
 			}
 		//==========================
 		// ] end link if inside one
-		} else if (c == "]" && top_is('link')){
+		} else if (c == "]" && stack.top().inBrackets){ //this might break if it assumes .top() exists. needs more testing
 			scan();
 			endBlock();
 		//================
 		// https?:// link
-		} else if (c == "h") { //lol this is silly
+		} else if (c == "h" || c == "!") { //lol this is silly
+			var embed;
+			if (c == "!") {
+				embed = true;
+				scan();
+			}
 			var start = i;
 			scan();
 			if (code.substr(start,7) == "http://" || code.substr(start,8) == "https://") {
@@ -243,10 +249,16 @@ function parse(code, options) {
 					scan();
 				}
 				var url = code.substring(start, i);
-				startBlock('link', {}, url);
+				if (embed) {
+					var type = urlType(url);
+					startBlock(type, {}, url);
+				} else {
+					startBlock('link', {}, url);
+				}
 				if (c == "[") {
 					scan();
 					skipLinebreak();
+					stack.top().inBrackets = true;
 				} else {
 					addText(url);
 					endBlock();
@@ -398,7 +410,7 @@ console.log("NOT ENDING");
 
 	// ew regex
 	function isUrlChar(c) {
-		return c && (/[-\w$.+!*'(),;/?:@=&]/).test(c);
+		return c && (/[-\w$.+!*'(),;/?:@=&#%]/).test(c);
 	}
 	
 	// closeAll(true) - called at end of document
@@ -510,6 +522,15 @@ console.log("NOT ENDING");
 		}
 	}
 
+	// audio, video, image, youtube
+	function urlType(url) {
+		if (/(\.mp3(?!\w)|\.ogg(?!\w)|\.wav(?!\w)|#audio$)/.test(url))
+			return "audio";
+		if (/(\.mp4(?!\w)|#video$)/.test(url))
+			return "video";
+		return "image";
+	}
+	
 	// common code for all text styling tags (bold etc.)
 	function doMarkup(type, create, symbol) {
 		if (canStartMarkup(type)) {
