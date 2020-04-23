@@ -207,7 +207,7 @@ function parse(code, options) {
 				// ---<EOL> hr
 				if (c == "\n" || !c) {
 					skipLinebreak();
-					addBlock(options.line);
+					addBlock(options.line());
 				//----------
 				// ---... normal text
 				} else {
@@ -243,7 +243,6 @@ function parse(code, options) {
 				scan();
 			}
 			var start = i;
-			scan();
 			if (code.substr(start,7) == "http://" || code.substr(start,8) == "https://") {
 				while (isUrlChar(c)) {
 					scan();
@@ -264,7 +263,12 @@ function parse(code, options) {
 					endBlock();
 				}
 			} else {
-				addText("h");
+				if (embed)
+					addText("!");
+				else {
+					scan();
+					addText("h");
+				}
 			}
 		//============
 		// |... table
