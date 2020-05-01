@@ -1,6 +1,4 @@
-alert("ONLOAD.JS OK");
-
-/*window.myself = new Myself();
+window.myself = new Myself();
 myself.on('auth',function(){
 	$login.style.display = "none";
 });
@@ -10,7 +8,9 @@ myself.on('logOut', function(){
 if (window.localStorage && window.localStorage.auth) {
 	myself.setAuth(window.localStorage.auth);
 }
-myself.testAuth();*/
+myself.testAuth();
+
+alert("ONLOAD.JS OK 2");
 
 function register() {
 	myself.register($username.value, $password.value, $email.value, function(e) {
