@@ -10,7 +10,7 @@ if (window.localStorage && window.localStorage.auth) {
 }
 myself.testAuth();
 
-alert("ONLOAD.JS OK 2");
+alert("ONLOAD.JS OK 3");
 
 function register() {
 	myself.register($username.value, $password.value, $email.value, function(e) {
@@ -51,9 +51,9 @@ function showPost() {
 				} else {
 					console.log(resp);
 					$post.innerHTML = "";
-					$post.appendChild(parse(resp[0].content));
 					$textarea.value = resp[0].content;
 					$title.value = resp[0].title;
+					$post.appendChild(parse(resp[0].content));
 				}
 			}catch(e){
 				alert(e);
