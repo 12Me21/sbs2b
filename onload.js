@@ -5,7 +5,7 @@ myself.on('auth',function(){
 myself.on('logOut', function(){
 	$login.style.display = "unset";
 });
-if (window.localStorage.auth) {
+if (window.localStorage && window.localStorage.auth) {
 	myself.setAuth(window.localStorage.auth);
 }
 myself.testAuth();
@@ -42,16 +42,20 @@ function login() {
 
 function showPost() {
 	try{
-	myself.request("Content?ids="+$id.value,"GET",function(resp, code){
-		if (code!=200) {
-			alert("error:"+resp);
-		} else {
-			console.log(resp);
-			$post.innerHTML = "";
-			$post.appendChild(parse(resp[0].content));
-			$textarea.value = resp[0].content;
-			$title.value = resp[0].title;
-		}
+		myself.request("Content?ids="+$id.value,"GET",function(resp, code){
+			try{
+				if (code!=200) {
+					alert("error:"+resp);
+				} else {
+					console.log(resp);
+					$post.innerHTML = "";
+					$post.appendChild(parse(resp[0].content));
+					$textarea.value = resp[0].content;
+					$title.value = resp[0].title;
+				}
+			}catch(e){
+				alert(e);
+			}
 	});
 	}catch(e){
 		alert(e);
