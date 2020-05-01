@@ -41,6 +41,7 @@ function login() {
 }
 
 function showPost() {
+	try{
 	myself.request("Content?ids="+$id.value,"GET",function(resp, code){
 		if (code!=200) {
 			alert("error:"+resp);
@@ -52,6 +53,9 @@ function showPost() {
 			$title.value = resp[0].title;
 		}
 	});
+	}catch(e){
+		alert(e);
+	}
 }
 
 var RANDOMS_MAGIC_PARENT_ID = 5;
