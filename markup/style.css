@@ -47,29 +47,30 @@ a:hover {
 	text-decoration: underline;
 }
 
-pre {
-	background-color: #f6f8fa;
+code {
 	border-radius: 3px;
-	border: 1px solid #444;
 	font-size: 85%;
+	font-family: SFMono-Regular,Consolas,Liberation Mono,Menlo,Courier,monospace;
+}
+
+code:not([data-inline]) {
+	display: block;
+	background-color: #f6f8fa;
+	border: 1px solid #444;
 	line-height: 1.45;
 	overflow: auto;
 	padding: 16px;
 	word-break: normal;
 	word-wrap: normal;
 	margin-top: 8px;
-	font-family: SFMono-Regular,Consolas,Liberation Mono,Menlo,Courier,monospace;
 	margin-bottom: 8px;
 	box-shadow: 5px 10px 8px #888888;
 }
 
-code {
+code[data-inline] {
 	background-color: rgba(27,31,35,.05);
-	border-radius: 3px;
-	font-size: 85%;
 	margin: 0;
 	padding: .1em .2em;
-	font-family: SFMono-Regular,Consolas,Liberation Mono,Menlo,Courier,monospace;
 	white-space: nowrap;
 }
 
