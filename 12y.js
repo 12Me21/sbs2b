@@ -1,105 +1,4 @@
-parse.defoptions = (function(){
-	if (!document)
-		return;
-	
-	var create = document.createElement.bind(document);
-	var createText = document.createTextNode.bind(document);
-	var creator = function (tag) {
-		return create.bind(document, tag);
-	};
-
-	return {
-		append: function (parent, child) {
-			parent.appendChild(child);
-		},
-		parent: function (child) { // unused currently
-			return child.parent;
-		},
-		remove: function(child) {
-			child.remove();
-		},
-
-		//========================
-		// nodes without children:
-		text: function (text) {
-			return createText(text);
-		},
-		lineBreak: creator('br'),
-		line: creator('hr'),
-		// code block
-		code: function (code, language) {
-			var node = create('code');
-			node.dataset.lang = language;
-			node.innerHTML = highlightSB(code, language);
-			return node;
-		},
-		// inline code
-		icode: function (code) {
-			var node = create('code');
-			node.textContent = code;
-			node.dataset.inline = "true";
-			return node;
-		},
-		audio: function (url) {
-			var node = create('audio');
-			node.setAttribute('controls', "");
-			node.setAttribute('src', url);
-			return node;
-		},
-		video: function (url) {
-			var node = create('video');
-			node.setAttribute('controls', "");
-			node.setAttribute('src', url);
-			return node;
-		},
-
-		//=====================
-		// nodes with children
-		root: function () {
-			var node = create('div');
-			node.className = "markup-root";
-			return node;
-		},
-		bold: creator('b'),
-		italic: creator('i'),
-		underline: creator('u'),
-		strikethrough: creator('s'),
-		heading: function (level) { // input: 1, 2, or 3
-			return create('h' + level);//['h1','h2','h3'][level-1] || 'h3');
-		},
-		quote: function (user) {
-			var node = create('blockquote');
-			node.setAttribute('cite', user);
-			return node;
-		},
-		list: creator('ul'),
-		item: creator('li'), // (list item)
-		link: function (url) {
-			var node = create('a');
-			node.setAttribute('href', url);
-			return node;
-		},
-		table: creator('table'),
-		row: creator('tr'),
-		cell: function (header) {
-			return header ?
-				create('th') :
-				create('td');
-		},
-		image: function (url) {
-			var node = create('img');
-			node.setAttribute('src', url);
-			node.setAttribute('tab-index', "-1");
-			return node;
-		},
-		error: function() {
-			var node = create('div');
-			node.className = "parse-error";
-			node.textContent = "Error";
-			return node;
-		}
-	};
-})();
+alert("PARSE OK");
 
 function parse(code, options) {
 	options = options || parse.defoptions;
@@ -686,3 +585,106 @@ function parse(code, options) {
 		curr = stack[i].node;
 	}
 }
+
+parse.defoptions = (function(){
+	if (!document)
+		return;
+	
+	var create = document.createElement.bind(document);
+	var createText = document.createTextNode.bind(document);
+	var creator = function (tag) {
+		return create.bind(document, tag);
+	};
+
+	return {
+		append: function (parent, child) {
+			parent.appendChild(child);
+		},
+		parent: function (child) { // unused currently
+			return child.parent;
+		},
+		remove: function(child) {
+			child.remove();
+		},
+
+		//========================
+		// nodes without children:
+		text: function (text) {
+			return createText(text);
+		},
+		lineBreak: creator('br'),
+		line: creator('hr'),
+		// code block
+		code: function (code, language) {
+			var node = create('code');
+			node.dataset.lang = language;
+			node.innerHTML = highlightSB(code, language);
+			return node;
+		},
+		// inline code
+		icode: function (code) {
+			var node = create('code');
+			node.textContent = code;
+			node.dataset.inline = "true";
+			return node;
+		},
+		audio: function (url) {
+			var node = create('audio');
+			node.setAttribute('controls', "");
+			node.setAttribute('src', url);
+			return node;
+		},
+		video: function (url) {
+			var node = create('video');
+			node.setAttribute('controls', "");
+			node.setAttribute('src', url);
+			return node;
+		},
+
+		//=====================
+		// nodes with children
+		root: function () {
+			var node = create('div');
+			node.className = "markup-root";
+			return node;
+		},
+		bold: creator('b'),
+		italic: creator('i'),
+		underline: creator('u'),
+		strikethrough: creator('s'),
+		heading: function (level) { // input: 1, 2, or 3
+			return create('h' + level);//['h1','h2','h3'][level-1] || 'h3');
+		},
+		quote: function (user) {
+			var node = create('blockquote');
+			node.setAttribute('cite', user);
+			return node;
+		},
+		list: creator('ul'),
+		item: creator('li'), // (list item)
+		link: function (url) {
+			var node = create('a');
+			node.setAttribute('href', url);
+			return node;
+		},
+		table: creator('table'),
+		row: creator('tr'),
+		cell: function (header) {
+			return header ?
+				create('th') :
+				create('td');
+		},
+		image: function (url) {
+			var node = create('img');
+			node.setAttribute('src', url);
+			node.setAttribute('tab-index', "-1");
+			return node;
+		},
+		error: function() {
+			var node = create('div');
+			node.className = "parse-error";
+			node.textContent = "Error";
+			return node;
+		}
+	};
+})();
