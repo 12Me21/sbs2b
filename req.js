@@ -1,3 +1,4 @@
+alert("REQ.JS OK");
 var SERVER = "http://new.smilebasicsource.com/api/";
 if (location.protocol == "https:")
 	SERVER = "https://new.smilebasicsource.com/api/";

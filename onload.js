@@ -1,4 +1,6 @@
-window.myself = new Myself();
+alert("ONLOAD.JS OK");
+
+/*window.myself = new Myself();
 myself.on('auth',function(){
 	$login.style.display = "none";
 });
@@ -8,7 +10,7 @@ myself.on('logOut', function(){
 if (window.localStorage && window.localStorage.auth) {
 	myself.setAuth(window.localStorage.auth);
 }
-myself.testAuth();
+myself.testAuth();*/
 
 function register() {
 	myself.register($username.value, $password.value, $email.value, function(e) {
@@ -61,34 +63,3 @@ function showPost() {
 		alert(e);
 	}
 }
-
-var RANDOMS_MAGIC_PARENT_ID = 5;
-
-function makePost() {
-	var method = "POST";
-	var url = "Content";
-	if ($id.value) {
-		url += "/"+$id.value;
-		method = "PUT";
-	}
-	myself.request(url, method, function(resp, code) {
-		if (code !=200) {
-			alert("Error: "+resp);
-		}
-		console.log(resp);
-	}, {
-		title: $title.value,
-		content: $textarea.value,
-		parentId: RANDOMS_MAGIC_PARENT_ID,
-	});
-}
-
-function onUpdate() {
-	$post.innerHTML = ""
-	$post.appendChild(parse($textarea.value));;
-}
-
-	if (window.location.hash) {
-		$id.value = (window.location.hash).substr(1);
-		showPost();
-	}
