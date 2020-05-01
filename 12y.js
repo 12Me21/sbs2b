@@ -623,7 +623,7 @@ parse.defoptions = (function(){
 		// code block
 		code: function (code, language) {
 			var node = create('code');
-			node.dataset.lang = language;
+			node.setAttribute('data-lang', language);
 			node.innerHTML = highlightSB(code, language);
 			return node;
 		},
@@ -631,7 +631,7 @@ parse.defoptions = (function(){
 		icode: function (code) {
 			var node = create('code');
 			node.textContent = code;
-			node.dataset.inline = "true";
+			node.setAttribute('data-inline', "true");
 			return node;
 		},
 		audio: function (url) {
