@@ -1,4 +1,6 @@
-var SERVER = "https://cors-anywhere.herokuapp.com/http://new.smilebasicsource.com/api/";
+var SERVER = "http://new.smilebasicsource.com/api/";
+if (location.protocol == "https:")
+	SERVER = "https://new.smilebasicsource.com/api/";
 
 function request(endpoint, method, callback, data, auth) {
 	var x = new XMLHttpRequest();
@@ -8,12 +10,12 @@ function request(endpoint, method, callback, data, auth) {
 		var type = x.getResponseHeader("Content-Type");
 		if (/^application\/json(?!=\w)/.test(type)) {
 			try {
-				var resp = JSON.parse(x.response);
+				var resp = JSON.parse(x.responseText);
 			} catch(e) {
 				resp = null;
 			}
 		} else {
-			resp = x.response;
+			resp = x.responseText;
 		}
 		callback(resp, code);
 	}
@@ -90,11 +92,13 @@ Myself.prototype.logIn = function(username, password, callback) {
 }
 
 // make a request with your auth code,
-// if response is 401, triggers a logOut
+// if response is 401/400, triggers a logOut
 Myself.prototype.request = function(url, method, callback, data) {
 	var $=this;
 	request(url, method, function(resp, code){
-		if (code == 401) {
+		// 401: invalid auth
+		// 400: invalid UID (when database is reset)
+		if (code == 401 || code == 400) {
 			$.logOut();
 			callback.call($,resp, code);
 		} else {
@@ -157,4 +161,34 @@ Myself.prototype.register = function(username, password, email, callback) {
 			})
 		}
 	});
+}
+
+Myself.prototype.getContentz = function(ids, callback) {
+	var $=this;
+	myself.request("Content?ids="+ids.join(","), "GET", function(resp, code) {
+		callback.call($, resp, code);
+	});
+}
+
+Myself.prototype.getUsers = function(ids, callback) {
+	var $=this;
+	myself.request("User?ids="+ids.join(","), "GET", function(resp, code) {
+		callback.call($, resp, code);
+	});
+}
+
+//
+function Content(obj, callback) {
+	this.name = obj.name;
+	this.content = obj.content;
+	this.type = obj.type;
+	this.values = obj.values;
+	this.keywords = obj.keywords;
+	this.parentId = obj.parentId;
+	this.permissions = obj.permissions;
+	this.editDate = new Date(obj.editDate);
+	this.createUserId = obj.createUserId;
+	this.editUserId = obj.editUserId;
+	this.id = obj.id;
+	this.createDate = new Date(obj.editDate);
 }

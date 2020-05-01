@@ -46,7 +46,8 @@ function showPost() {
 			alert("error:"+resp);
 		} else {
 			console.log(resp);
-			$post.innerHTML = parse(resp[0].content, options);
+			$post.innerHTML = "";
+			$post.appendChild(parse(resp[0].content));
 			$textarea.value = resp[0].content;
 			$title.value = resp[0].title;
 		}
@@ -66,6 +67,7 @@ function makePost() {
 		if (code !=200) {
 			alert("Error: "+resp);
 		}
+		console.log(resp);
 	}, {
 		title: $title.value,
 		content: $textarea.value,
@@ -74,7 +76,8 @@ function makePost() {
 }
 
 function onUpdate() {
-	$post.innerHTML = "Preview:<br>"+parse($textarea.value,options2);
+	$post.innerHTML = ""
+	$post.appendChild(parse($textarea.value));;
 }
 
 	if (window.location.hash) {
