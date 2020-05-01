@@ -54,6 +54,7 @@ code {
 }
 
 code:not([data-inline]) {
+	white-space: pre-wrap;
 	display: block;
 	background-color: #f6f8fa;
 	border: 1px solid #444;
