@@ -1,4 +1,4 @@
-parse.defoptions = (() => {
+parse.defoptions = (function(){
 	if (!document)
 		return;
 	
