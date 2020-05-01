@@ -17,8 +17,8 @@ function parse(code, options) {
 		list: true,
 		item: true,
 		table: true,
-		image: true,
-	}
+		image: true
+	};
 	var skipNextLineBreak;
 	
 	try {
@@ -245,7 +245,7 @@ function parse(code, options) {
 				} else if (startOfLine) {
 					scan();
 					table = startBlock('table', {
-						columns: null,
+						columns: null
 					});
 					row = startBlock('row', {
 						table: table,
@@ -258,7 +258,7 @@ function parse(code, options) {
 						row.header = false;
 					}
 					startBlock('cell', {
-						row: row,
+						row: row
 					}, row.header);
 				} else {
 					scan();
@@ -307,7 +307,7 @@ function parse(code, options) {
 						i = code.indexOf("```", i);
 						addBlock(options.code(
 							code.substring(start, i!=-1 ? i : code.length),
-							language,
+							language
 						));
 						if (i != -1) {
 							i += 2;
@@ -590,10 +590,16 @@ parse.defoptions = (function(){
 	if (!document)
 		return;
 	
-	var create = document.createElement.bind(document);
-	var createText = document.createTextNode.bind(document);
+	var create = function(x) {
+		return document.createElement(x);
+	}
+	var createText = function(x) {
+		return document.createTextNode(x);
+	}
 	var creator = function (tag) {
-		return create.bind(document, tag);
+		return function() {
+			return create(tag);
+		}
 	};
 
 	return {
